@@ -89,7 +89,7 @@ route.put('/update/:id', authenticateToken, async(req,res) => {
 });
 
 //DELETE a product
-route.delete('/delProduct/:id', authenticateToken, async(req,res) => {
+route.delete('/delete/:id', authenticateToken, async(req,res) => {
     try {
         const { id } = req.params;
         const product = await supabase.from('barang').select('nama_produk').eq('id', id);
@@ -98,7 +98,7 @@ route.delete('/delProduct/:id', authenticateToken, async(req,res) => {
             return res.status(404).json({message: "Product with this id does not exist."})
         }
 
-        await supabase.from('barang').delete().eq('id', product_id);
+        await supabase.from('barang').delete().eq('id', id);
         return res.status(200).json({ message: "Delete success."});
     } catch (error) {
         return res.status(500).json({ message: error.message });

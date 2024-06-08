@@ -75,10 +75,10 @@ route.post('/login', async (req, res) => {
 });
 
 //LOGOUT
-// route.get('/logout', (req, res) => {
-//     req.session.userid = null;
-//     res.status(200).json({ message: "Logout telah berhasil." });
-// });
+route.get('/logout', (req, res) => {
+    req.user = null;
+    res.status(200).json({ message: "Logout telah berhasil." });
+});
 
 //GET USER'S DETAILS (cloud sql)
 // route.get('/:id', authenticateToken, async(req,res) => {
