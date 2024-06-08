@@ -143,5 +143,43 @@ route.get('/getProfile', authenticateToken, async(req,res) => {
     }
 });
 
+//UPDATE profile
+route.put('/updateProfile', authenticateToken, async(req,res) => {
+    try {
+        const user_id = req.user.id;
+        const { 
+            username, 
+            password, 
+            alamat, 
+            notelp, 
+            email, 
+            tgl_lahir, 
+            jenis_kelamin 
+        } = req.body;
+
+        const salt = await bcrypt.genSalt();
+        const finalPass = await bcrypt.hash(password, salt);
+
+        const updatedProfile = await supabase
+        .from('users')
+        .update({
+            username: username, 
+            password: finalPass, 
+            alamat: alamat, 
+            notelp: notelp, 
+            email: email, 
+            tgl_lahir: tgl_lahir, 
+            jenis_kelamin: jenis_kelamin
+        })
+        .eq('id', user_id)
+        .select('*');
+
+        return res.status(200).send(updatedProfile.data);
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+
 
 export default route;
