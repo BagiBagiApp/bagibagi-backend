@@ -127,4 +127,21 @@ route.get('/userDashboard', authenticateToken, async(req,res) => {
     }
 });
 
+// FOR PROFILE PAGE
+
+// GET profile users and the profile's products owned
+route.get('/getProfile', authenticateToken, async(req,res) => {
+    try {
+        const user_id = req.user.id;
+        const profile = await supabase.from('users').select('*').eq('id', user_id);
+        const products = await supabase.from('barang').select('*').eq('pemilik', user_id);
+        profile.data[0]["produk"] = products.data;
+
+        return res.status(200).send(profile.data);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+
+
 export default route;
