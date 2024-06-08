@@ -80,30 +80,47 @@ route.post('/login', async (req, res) => {
 //     res.status(200).json({ message: "Logout telah berhasil." });
 // });
 
-//GET USER'S DETAILS
-route.get('/:id', authenticateToken, async(req,res) => {
-    try {
-        const { id } = req.params;
-        var details = [];
-        var barterSukses = [];
+//GET USER'S DETAILS (cloud sql)
+// route.get('/:id', authenticateToken, async(req,res) => {
+//     try {
+//         const { id } = req.params;
+//         var details = [];
+//         var barterSukses = [];
 
-        connection.query('SELECT * FROM users WHERE id = ?', [id], (error, results, fields) => {
-            if (error) throw error;
-            details = results;
+//         connection.query('SELECT * FROM users WHERE id = ?', [id], (error, results, fields) => {
+//             if (error) throw error;
+//             details = results;
             
-            connection.query('SELECT id FROM barter WHERE (requester = ? OR recepient = ?) AND status = "success"', [id, id], (error, results, fields) => {
-                if (error) throw error;
-                barterSukses = results;
+//             connection.query('SELECT id FROM barter WHERE (requester = ? OR recepient = ?) AND status = "success"', [id, id], (error, results, fields) => {
+//                 if (error) throw error;
+//                 barterSukses = results;
 
-                if(barterSukses.length == 0){
-                    details[0]["sukses_barter"] = 0;
-                }else{
-                    details[0]["sukses_barter"] = barterSukses.data.length;
-                }
+//                 if(barterSukses.length == 0){
+//                     details[0]["sukses_barter"] = 0;
+//                 }else{
+//                     details[0]["sukses_barter"] = barterSukses.data.length;
+//                 }
         
-                return res.status(200).send(details);
-            });
-        });
+//                 return res.status(200).send(details);
+//             });
+//         });
+        
+//     } catch (error) {
+//         return res.status(500).json({ message: error.message });
+//     }
+// });
+
+//GET USER'S DETAILS for dashboard (supabase)
+route.get('/userDashboard', authenticateToken, async(req,res) => {
+    try {
+        const user_id = req.user.id;
+
+        const details = await supabase.from('users').select('*').eq('id', user_id);
+
+        const barterSukses = await supabase.from('barter').select('id').or(`requester.eq.${id},recepient.eq.${id}`).eq('status', 'Done');
+        details.data[0]["sukses_barter"] = barterSukses.data.length;
+
+        return res.status(200).send(details.data);
         
     } catch (error) {
         return res.status(500).json({ message: error.message });
