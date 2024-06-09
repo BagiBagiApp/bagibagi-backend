@@ -93,7 +93,7 @@ route.get('/logout', (req, res) => {
 //             if (error) throw error;
 //             details = results;
             
-//             connection.query('SELECT id FROM barter WHERE (requester = ? OR recepient = ?) AND status = "success"', [id, id], (error, results, fields) => {
+//             connection.query('SELECT id FROM barter WHERE (requester = ? OR recipient = ?) AND status = "success"', [id, id], (error, results, fields) => {
 //                 if (error) throw error;
 //                 barterSukses = results;
 
@@ -119,7 +119,7 @@ route.get('/userDashboard', authenticateToken, async(req,res) => {
 
         const details = await supabase.from('users').select('*').eq('id', user_id);
 
-        const barterSukses = await supabase.from('barter').select('id').or(`requester.eq.${id},recepient.eq.${id}`).eq('status', 'Done');
+        const barterSukses = await supabase.from('barter').select('id').or(`requester.eq.${user_id},recipient.eq.${user_id}`).eq('status', 'Completed');
         details.data[0]["sukses_barter"] = barterSukses.data.length;
 
         return res.status(200).send(details.data);
@@ -128,5 +128,45 @@ route.get('/userDashboard', authenticateToken, async(req,res) => {
         return res.status(500).json({ message: error.message });
     }
 });
+
+// FOR PROFILE PAGE
+
+// GET profile users and the profile's products owned
+route.get('/getProfile', authenticateToken, async(req,res) => {
+    try {
+        const user_id = req.user.id;
+        const profile = await supabase.from('users').select('*').eq('id', user_id);
+        const products = await supabase.from('barang').select('*').eq('pemilik', user_id);
+        profile.data[0]["produk"] = products.data;
+
+        return res.status(200).send(profile.data);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+
+//UPDATE profile
+route.put('/updateProfile', upload.none(), authenticateToken, async(req,res) => {
+    try {
+        const user_id = req.user.id;
+        const { username, alamat, notelp } = req.body;
+
+        const updatedProfile = await supabase
+        .from('users')
+        .update({
+            username: username,  
+            alamat: alamat, 
+            notelp: notelp
+        })
+        .eq('id', user_id)
+        .select('*');
+
+        return res.status(200).send(updatedProfile.data);
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+});
+
 
 export default route;

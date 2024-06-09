@@ -9,8 +9,8 @@ const route = express.Router();
 //GET ALL ORGANIZATIONS
 route.get('/allOrg',authenticateToken, async(req,res) => {
     try {
-        const data = await supabase.from('organizations').select('*');
-        return res.status(200).json({data: data});
+        const org = await supabase.from('organizations').select('*');
+        return res.status(200).send(org.data);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
@@ -21,7 +21,7 @@ route.get('/:id', authenticateToken, async(req,res) => {
     try {
         const { id } = req.params;
         const details = await supabase.from('organizations').select('*').eq('id', id);
-        return res.status(200).json({data: details});
+        return res.status(200).send(details.data);
     } catch (error) {
         return res.status(500).json({ message: error.message });
     }
