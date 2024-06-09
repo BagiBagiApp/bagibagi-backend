@@ -5,8 +5,10 @@ import dotenv from 'dotenv';
 import bcrypt from "bcryptjs";
 import authenticateToken from "../middlewares/authMiddleware.js";
 import mysql from "mysql";
+import Multer from "multer";
 dotenv.config();
 
+const upload = Multer();
 const route = express.Router();
 const secretKey = process.env.JWT_SECRET_KEY;
 
@@ -18,7 +20,7 @@ const connection = mysql.createConnection({
 })
 
 //REGISTER
-route.post('/register', async (req,res) => {
+route.post('/register',upload.none(),  async (req,res) => {
     try {
         const {username, password, alamat, notelp, email, tgl_lahir, jenis_kelamin} = req.body;
         const foundName = await supabase.from('users').select('username').eq('username', username);
@@ -49,7 +51,7 @@ route.post('/register', async (req,res) => {
 });
 
 //LOGIN
-route.post('/login', async (req, res) => {
+route.post('/login', upload.none(),  async (req, res) => {
     try {
         const username = req.body.username;
         const password = req.body.password;

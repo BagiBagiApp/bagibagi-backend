@@ -2,8 +2,10 @@ import express, { Router } from "express";
 import supabase from "../supabase.js";
 import dotenv from 'dotenv';
 import authenticateToken from "../middlewares/authMiddleware.js";
+import Multer from "multer";
 dotenv.config();
 
+const upload = Multer();
 const route = express.Router();
 
 //GET BARTER DETAILS
@@ -33,7 +35,7 @@ route.get('/barter/:id', authenticateToken, async(req,res) => {
 });
 
 //POST Request Barter
-route.post('/reqBarter', authenticateToken, async(req,res) => {
+route.post('/reqBarter', upload.none(), authenticateToken, async(req,res) => {
     try {
         const {jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient} = req.body;
         const requester = req.user.id;
@@ -88,7 +90,7 @@ route.get('/requestedBarter', authenticateToken, async(req,res) => {
 });
 
 //UPDATE barter status
-route.put('/updateStatus/:id', authenticateToken, async(req,res) => {
+route.put('/updateStatus/:id', upload.none(), authenticateToken, async(req,res) => {
     try {
         const { id } = req.params;
         const newStatus = req.body.newStatus;

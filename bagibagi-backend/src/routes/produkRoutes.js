@@ -65,7 +65,7 @@ route.post('/upload', authenticateToken, multer.single('foto'), imgUpload.upload
 });
 
 //UPDATE a product
-route.put('/update/:id', authenticateToken, async(req,res) => {
+route.put('/update/:id', multer.none(), authenticateToken, async(req,res) => {
     try {
         const { id } = req.params;
         const { nama_produk, desc, kategori, qty, status, years_of_usage } = req.body;
