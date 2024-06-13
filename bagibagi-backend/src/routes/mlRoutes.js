@@ -2,8 +2,8 @@ import express, { Router } from "express";
 import supabase from "../supabase.js";
 import dotenv from 'dotenv';
 import authenticateToken from "../middlewares/authMiddleware.js";
-import imgUpload from "../middlewares/imgUpload.js";
 import Multer from "multer";
+import { spawn } from "child_process";
 dotenv.config();
 
 const route = express.Router();
@@ -38,18 +38,19 @@ route.get('/recommendations', async(req,res) => {
         const userVec = [[jmlh_autoAccessories, jmlh_electronic, jmlh_fashion, jmlh_homeFurniture]];
 
         let productVec = [];
-        const allProducts = await supabase.from('barang').select('kategori, qty');
+        const allProducts = await supabase.from('barang').select('id, kategori, qty');
         for(const produk in allProducts.data){
             const kategori = allProducts.data[produk].kategori;
             const qty = allProducts.data[produk].qty;
+            const id_barang = allProducts.data[produk].id;
             if(kategori == "fashion"){
-                productVec.push([0, qty, 0, 1, 0]);
+                productVec.push([id_barang, 0, qty, 0, 1, 0]);
             } else if(kategori == "auto_accessories"){
-                productVec.push([1, qty, 0, 0, 0]);
+                productVec.push([id_barang, 1, qty, 0, 0, 0]);
             } else if(kategori == "electronic") {
-                productVec.push([0, qty, 1, 0, 0]);
+                productVec.push([id_barang, 0, qty, 1, 0, 0]);
             } else if(kategori == "home_furniture") {
-                productVec.push([0, qty, 0, 0, 1]);
+                productVec.push([id_barang, 0, qty, 0, 0, 1]);
             }
         }
 
