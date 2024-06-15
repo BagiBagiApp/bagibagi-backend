@@ -65,13 +65,14 @@ route.get('/recommendations', async (req, res) => {
 
         const recommendedProducts = await supabase
             .from('barang')
-            .select('id, nama_produk, qty')
+            .select('id, link_foto, nama_produk, qty')
             .in('id', recommendedIdBarang);
 
         const productMap = {};
         recommendedProducts.data.forEach(product => {
             productMap[product.id] = {
                 id: product.id,
+                link_foto: product.link_foto,
                 nama_produk: product.nama_produk,
                 quantity: product.qty
             };
