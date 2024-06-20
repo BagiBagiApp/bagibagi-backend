@@ -9,9 +9,10 @@ dotenv.config();
 const route = express.Router();
 
 //REC SYSTEM
-route.get('/recommendations', async (req, res) => {
+route.get('/recommendations', authenticateToken, async (req, res) => {
     try {
-        const user_id = 2;
+        // const user_id = 2;
+        const user_id = req.user.id;
         const exchange = await supabase
             .from('barter')
             .select('id, barang_recipient')
@@ -63,22 +64,30 @@ route.get('/recommendations', async (req, res) => {
         // recommended id as recsys' response
         const recommendedIdBarang = response.data.recommended_id;
 
+        // todo: get only the top 10 array item
+        let top10RecomIdBarang = recommendedIdBarang.slice(0, 10);
+
         const recommendedProducts = await supabase
             .from('barang')
-            .select('id, link_foto, nama_produk, qty')
-            .in('id', recommendedIdBarang);
+            .select('id, link_foto, nama_produk, qty, desc, kategori, status, years_of_usage, pemilik')
+            .in('id', top10RecomIdBarang);
 
         const productMap = {};
         recommendedProducts.data.forEach(product => {
             productMap[product.id] = {
                 id: product.id,
-                link_foto: product.link_foto,
                 nama_produk: product.nama_produk,
-                quantity: product.qty
+                desc: product.desc,
+                kategori: product.kategori,
+                qty: product.qty,
+                status: product.status,
+                years_of_usage: product.years_of_usage,
+                pemilik: product.pemilik,
+                link_foto: product.link_foto
             };
         });
 
-        const recommendations = recommendedIdBarang.map(id => productMap[id]);
+        const recommendations = top10RecomIdBarang.map(id => productMap[id]);
 
         return res.status(200).json({
             recommendations: recommendations
