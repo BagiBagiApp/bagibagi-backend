@@ -84,8 +84,8 @@ route.get('/detailssb/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const details = await supabase.from('barang').select('*').eq('id', id);
-        const ownersName = await supabase.from('users').select('username').eq('id', details.data[0].pemilik);
-        details.data[0].pemilik = ownersName.data[0].username;
+        const ownersName = await supabase.from('users').select('username, alamat').eq('id', details.data[0].pemilik);
+        details.data[0].pemilik = ownersName.data[0];
         return res.status(200).send(details);
     } catch (error) {
         return res.status(500).json({ message: error.message });
@@ -97,8 +97,8 @@ route.get('/details/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
         const details = await query(' SELECT * FROM barang WHERE id = ?', [id]);
-        const ownersName = await query(' SELECT username FROM users WHERE id = ?', [details[0].pemilik]);
-        details[0].pemilik = ownersName[0].username;
+        const ownersName = await query(' SELECT username,alamat FROM users WHERE id = ?', [details[0].pemilik]);
+        details[0].pemilik = ownersName[0];
         return res.status(200).json({ data: details });
     } catch (error) {
         return res.status(500).json({ message: error.message });
