@@ -167,9 +167,22 @@ route.post('/reqBarter', upload.none(), authenticateToken, async(req,res) => {
 route.get('/bartersb', authenticateToken, async(req,res) => {
     try {
         const recipient_id = req.user.id;
+        console.log(recipient_id);
         const barter = await supabase.from('barter').select('*').eq('recipient', recipient_id);
         if(barter.data[0] == null){
             return res.status(200).json({message:"This user doesn't have a barter request from other user."});
+        }
+
+        for(const item in barter.data){
+            const recipient = await supabase.from('users').select('username, alamat').eq('id', recipient_id);
+            const requester = await supabase.from('users').select('username, alamat').eq('id', barter.data[item].requester);
+            const barang_recipient = await supabase.from('barang').select('*').eq('id', barter.data[item].barang_recipient);
+            const barang_requester = await supabase.from('barang').select('*').eq('id', barter.data[item].barang_requester);
+
+            barter.data[item]['recipient'] = recipient.data[0];
+            barter.data[item]['requester'] = requester.data[0];
+            barter.data[item]['barang_recipient'] = barang_recipient.data[0];
+            barter.data[item]['barang_requester'] = barang_requester.data[0];
         }
 
         return res.status(200).send(barter.data);
@@ -188,6 +201,18 @@ route.get('/barter', authenticateToken, async(req,res) => {
             return res.status(200).json({message:"This user doesn't have a barter request from other user."});
         }
 
+        for(const item in barter){
+            const recipient =  await query('SELECT username, alamat FROM users WHERE id = ?', [recipient_id]);
+            const requester =  await query('SELECT username, alamat FROM users WHERE id = ?', [barter[item].requester]);
+            const barang_recipient = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_recipient]);
+            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requestert]);
+
+            barter[item]['recipient'] = recipient[0];
+            barter[item]['requester'] = requester[0];
+            barter[item]['barang_recipient'] = barang_recipient[0];
+            barter[item]['barang_requester'] = barang_requester[0];
+        }
+
         return res.status(200).send(barter);
 
     } catch (error) {
@@ -204,6 +229,18 @@ route.get('/requestedBartersb', authenticateToken, async(req,res) => {
             return res.status(200).json({message:"This user doesn't have a barter request to other user."});
         }
 
+        for(const item in barter.data){
+            const recipient = await supabase.from('users').select('username, alamat').eq('id', barter.data[item].recipient);
+            const requester = await supabase.from('users').select('username, alamat').eq('id', requester_id);
+            const barang_recipient = await supabase.from('barang').select('*').eq('id', barter.data[item].barang_recipient);
+            const barang_requester = await supabase.from('barang').select('*').eq('id', barter.data[item].barang_requester);
+
+            barter.data[item]['recipient'] = recipient.data[0];
+            barter.data[item]['requester'] = requester.data[0];
+            barter.data[item]['barang_recipient'] = barang_recipient.data[0];
+            barter.data[item]['barang_requester'] = barang_requester.data[0];
+        }
+
         return res.status(200).send(barter.data);
 
     } catch (error) {
@@ -218,6 +255,18 @@ route.get('/requestedBarter', authenticateToken, async(req,res) => {
         const barter = await query('SELECT * FROM barter WHERE requester = ?', [requester_id]);
         if(barter[0] == null){
             return res.status(200).json({message:"This user doesn't have a barter request to other user."});
+        }
+
+        for(const item in barter){
+            const recipient =  await query('SELECT username, alamat FROM users WHERE id = ?', [barter[item].recipient]);
+            const requester =  await query('SELECT username, alamat FROM users WHERE id = ?', [requester_id]);
+            const barang_recipient = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_recipient]);
+            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requestert]);
+
+            barter[item]['recipient'] = recipient[0];
+            barter[item]['requester'] = requester[0];
+            barter[item]['barang_recipient'] = barang_recipient[0];
+            barter[item]['barang_requester'] = barang_requester[0];
         }
 
         return res.status(200).send(barter);
