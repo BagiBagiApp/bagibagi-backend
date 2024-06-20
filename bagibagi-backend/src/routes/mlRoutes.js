@@ -39,7 +39,10 @@ route.get('/recommendations', authenticateToken, async (req, res) => {
         const userVec = [[jmlh_autoAccessories, jmlh_electronic, jmlh_fashion, jmlh_homeFurniture]];
 
         let productVec = [];
-        const allProducts = await supabase.from('barang').select('id, kategori, qty');
+        const allProducts = await supabase
+            .from('barang')
+            .select('id, kategori, qty, pemilik')
+            .neq('pemilik', user_id);
         for (const produk in allProducts.data) {
             const kategori = allProducts.data[produk].kategori;
             const qty = allProducts.data[produk].qty;
