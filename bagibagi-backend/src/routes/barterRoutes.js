@@ -209,7 +209,7 @@ route.get('/barter', authenticateToken, async(req,res) => {
             const recipient =  await query('SELECT username, alamat FROM users WHERE id = ?', [recipient_id]);
             const requester =  await query('SELECT username, alamat FROM users WHERE id = ?', [barter[item].requester]);
             const barang_recipient = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_recipient]);
-            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requestert]);
+            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requester]);
 
             barter[item]['recipient'] = recipient[0];
             barter[item]['requester'] = requester[0];
@@ -265,7 +265,7 @@ route.get('/requestedBarter', authenticateToken, async(req,res) => {
             const recipient =  await query('SELECT username, alamat FROM users WHERE id = ?', [barter[item].recipient]);
             const requester =  await query('SELECT username, alamat FROM users WHERE id = ?', [requester_id]);
             const barang_recipient = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_recipient]);
-            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requestert]);
+            const barang_requester = await query('SELECT * FROM barang WHERE id = ?', [barter[item].barang_requester]);
 
             barter[item]['recipient'] = recipient[0];
             barter[item]['requester'] = requester[0];
