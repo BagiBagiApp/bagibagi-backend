@@ -126,15 +126,17 @@ route.get('/barter/:id', authenticateToken, async(req,res) => {
 //POST Request Barter (supabase)
 route.post('/reqBartersb', upload.none(), authenticateToken, async(req,res) => {
     try {
-        const {jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient} = req.body;
+        const {jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient} = req.body;
         const requester = req.user.id;
+
+        const recipient = await supabase.from('barang').select('pemilik').eq('id', barang_recipient);
         
         await supabase.from('barter').insert([{
             jmlh_barang_dibarter: jmlh_barang_dibarter, 
             jmlh_barang_didapat: jmlh_barang_didapat,
             barang_requester: barang_requester,
             barang_recipient: barang_recipient,
-            recipient: recipient,
+            recipient: recipient.data[0].pemilik,
             requester: requester,
             status: "Requested"
         }]);
@@ -149,11 +151,13 @@ route.post('/reqBartersb', upload.none(), authenticateToken, async(req,res) => {
 //POST Request Barter (cloudsql)
 route.post('/reqBarter', upload.none(), authenticateToken, async(req,res) => {
     try {
-        const {jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient} = req.body;
+        const {jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient} = req.body;
         const requester = req.user.id;
+
+        const recipient = await query('SELECT pemilik FROM barang WHERE id = ?', [barang_recipient]);
         
         const insertQuery = 'INSERT INTO barter (jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient, requester, status) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        const values = [jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient, requester, 'Requested']; 
+        const values = [jmlh_barang_dibarter, jmlh_barang_didapat, barang_requester, barang_recipient, recipient[0].pemilik, requester, 'Requested']; 
 
         await query(insertQuery, values);
         return res.status(200).json({message:"Request Exchange Successful."});
